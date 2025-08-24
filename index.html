@@ -10,39 +10,73 @@
 
   </head>
   <body>
-    <h1>Temperature Alerts</h1>
-    <div id="alerts">Coming Soon!</div>
-    <script>
-  const apiKey = "ea7590b39c1fcde352dd79f2330b128b"; // ← api key from weather api
-  const lat = 39.6848;
-  const lon = -83.9297;
+  <h1>Temperature Alerts for Xenia, OH</h1>
 
-  async function getForecast() {
-    const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=imperial&appid=${apiKey}`;
-    const response = await fetch(url);
-    const data = await response.json();
+  <div id="current-temp">Loading current temperature...</div>
 
-    const alertsDiv = document.getElementById("alerts");
-    alertsDiv.innerHTML = "<h2>Temperature Alerts</h2>";
+  <button onclick="checkFor75()">When will it hit 75°F?</button>
+  <div id="target-time"></div>
 
-    data.list.forEach(entry => {
-      const temp = entry.main.temp;
-      const time = new Date(entry.dt * 1000).toLocaleString("en-US", {
-        hour: "numeric", hour12: true, weekday: "short"
+  <div id="alerts"></div>
+
+  <script>
+    const apiKey = "ea7590b39c1fcde352dd79f2330b128b"; // your actual key
+    const lat = 39.6848;
+    const lon = -83.9297;
+
+    // Show current temperature
+    async function getCurrentTemp() {
+      const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=imperial&appid=${apiKey}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      const temp = data.main.temp;
+      document.getElementById("current-temp").textContent = `Current temperature: ${temp}°F`;
+    }
+
+    // Show alerts for ≥75°F or ≤32°F
+    async function getForecastAlerts() {
+      const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=imperial&appid=${apiKey}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      const alertsDiv = document.getElementById("alerts");
+      alertsDiv.innerHTML = "<h2>Temperature Alerts</h2>";
+
+      data.list.forEach(entry => {
+        const temp = entry.main.temp;
+        const time = new Date(entry.dt * 1000).toLocaleString("en-US", {
+          hour: "numeric", hour12: true, weekday: "short"
+        });
+
+        if (temp >= 75 || temp <= 32) {
+          const div = document.createElement("div");
+          div.className = temp >= 75 ? "hot" : "cold";
+          div.textContent = `${time}: ${temp}°F`;
+          alertsDiv.appendChild(div);
+        }
       });
+    }
 
-      if (temp >= 75 || temp <= 32) {
-        const div = document.createElement("div");
-        div.className = temp >= 75 ? "hot" : "cold";
-        div.textContent = `${time}: ${temp}°F`;
-        alertsDiv.appendChild(div);
-      }
-    });
-  }
+    // Button: When will it hit 75°F?
+    async function checkFor75() {
+      const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=imperial&appid=${apiKey}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      const match = data.list.find(entry => entry.main.temp >= 75);
+      const time = match
+        ? new Date(match.dt * 1000).toLocaleString("en-US", { hour: "numeric", hour12: true, weekday: "short" })
+        : "No forecasted time hits 75°F";
+      document.getElementById("target-time").textContent = `Expected around: ${time}`;
+    }
 
-  getForecast();
-</script>
+    getCurrentTemp();
+    getForecastAlerts();
+  </script>
 
+  <style>
+    .hot { background: #ffe4b5; padding: 5px; margin: 5px; border-radius: 5px; }
+    .cold { background: #add8e6; padding: 5px; margin: 5px; border-radius: 5px; }
+    button { margin-top: 10px; padding: 8px 12px; font-size: 16px; }
+  </style>
+</body>
 
-  </body>
 </html>
