@@ -3,9 +3,46 @@
   <head>
     <meta charset="UTF-8" />
     <title>Temperature Alert</title>
+    <style>
+  .hot { background: #ffe4b5; padding: 5px; margin: 5px; border-radius: 5px; }
+  .cold { background: #add8e6; padding: 5px; margin: 5px; border-radius: 5px; }
+</style>
+
   </head>
   <body>
     <h1>Temperature Alerts</h1>
     <div id="alerts">Coming Soon!</div>
+    <script>
+  const apiKey = "ea7590b39c1fcde352dd79f2330b128b"; // ← api key from weather api
+  const lat = 39.6848;
+  const lon = -83.9297;
+
+  async function getForecast() {
+    const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=imperial&appid=${apiKey}`;
+    const response = await fetch(url);
+    const data = await response.json();
+
+    const alertsDiv = document.getElementById("alerts");
+    alertsDiv.innerHTML = "<h2>Temperature Alerts</h2>";
+
+    data.list.forEach(entry => {
+      const temp = entry.main.temp;
+      const time = new Date(entry.dt * 1000).toLocaleString("en-US", {
+        hour: "numeric", hour12: true, weekday: "short"
+      });
+
+      if (temp >= 75 || temp <= 32) {
+        const div = document.createElement("div");
+        div.className = temp >= 75 ? "hot" : "cold";
+        div.textContent = `${time}: ${temp}°F`;
+        alertsDiv.appendChild(div);
+      }
+    });
+  }
+
+  getForecast();
+</script>
+
+
   </body>
 </html>
