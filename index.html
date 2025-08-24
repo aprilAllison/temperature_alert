@@ -57,16 +57,21 @@
     }
 
     // Button: When will it hit 75°F?
-    async function checkFor75() {
-      const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=imperial&appid=${apiKey}`;
-      const res = await fetch(url);
-      const data = await res.json();
-      const match = data.list.find(entry => entry.main.temp >= 75);
-      const time = match
-        ? new Date(match.dt * 1000).toLocaleString("en-US", { hour: "numeric", hour12: true, weekday: "short" })
-        : "No forecasted time hits 75°F";
-      document.getElementById("target-time").textContent = `Expected around: ${time}`;
-    }
+   async function checkFor75() {
+  const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=imperial&appid=${apiKey}`;
+  const res = await fetch(url);
+  const data = await res.json();
+
+  const match = data.list.find(entry => entry.main.temp >= 75);
+  const time = match
+    ? new Date(match.dt * 1000).toLocaleString("en-US", {
+        hour: "numeric", hour12: true, weekday: "short"
+      })
+    : "No forecasted time hits 75°F";
+
+  document.getElementById("target-time").textContent = `Expected around: ${time}`;
+}
+
 
     getCurrentTemp();
     getForecastAlerts();
